@@ -1,5 +1,6 @@
 package net.poweredbyawesome.blockdecay;
 
+import de.netzkronehd.wgregionevents.api.SimpleWorldGuardAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,14 +17,18 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 public final class BlockDecay extends JavaPlugin implements Listener {
 
     int defaultDecay;
-    private Map<Location, Long> blocks = new HashMap<>();
+    private final Map<Location, Long> blocks = new HashMap<>();
+
+    SimpleWorldGuardAPI api;
 
     @Override
     public void onEnable() {
+        api = new SimpleWorldGuardAPI();
         Bukkit.getPluginManager().registerEvents(this, this);
         saveDefaultConfig();
         defaultDecay = getConfig().getInt("default.time", 5);
@@ -50,12 +55,12 @@ public final class BlockDecay extends JavaPlugin implements Listener {
     }
 
     public void loadBlocks() {
-        ConfigurationSection section = getBlockStorage().getConfigurationSection("blocks");
+        ConfigurationSection section = Objects.requireNonNull(getBlockStorage()).getConfigurationSection("blocks");
         if (section == null) {
             return;
         }
         for (String s : section.getKeys(false)) {
-            blocks.put(LocationUtils.stringToLoc(s), getBlockStorage().getLong("blocks."+s));
+            blocks.put(LocationUtils.stringToLoc(s), getBlockStorage().getLong("blocks." + s));
         }
     }
 
@@ -65,19 +70,19 @@ public final class BlockDecay extends JavaPlugin implements Listener {
         if (!getConfig().getStringList("worlds").contains(ev.getBlock().getWorld().getName())) {
             return;
         }
-        if (!(getConfig().getStringList("whitelist").contains(mat) || getConfig().getConfigurationSection("decay").getKeys(false).contains(mat))) {
+        if (Objects.requireNonNull(getConfig().getConfigurationSection("decay")).getKeys(false).contains(mat)) {
+            return;
+        }
+        if (!api.isInRegion(ev.getBlockPlaced().getLocation(), "pvp")) {
             return;
         }
 
         if (!ev.getPlayer().hasPermission("blockdecay.bypass")) {
-            int decayTime = getConfig().getInt("decay."+mat+".time", defaultDecay);
+            int decayTime = getConfig().getInt("decay." + mat + ".time", defaultDecay);
             if (decayTime < 300) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-                    @Override
-                    public void run() {
-                        ev.getBlock().setType(Material.valueOf(getConfig().getString("default.material")));
-                    }
-                }, decayTime * 20);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
+                        ev.getBlock().setType(Material.valueOf(getConfig().getString("default.material"))
+                        ), decayTime * 20L);
             } else {
                 blocks.put(ev.getBlock().getLocation(), getEpoch() + decayTime);
             }
@@ -88,7 +93,7 @@ public final class BlockDecay extends JavaPlugin implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                for (Iterator<Map.Entry<Location, Long>> i = blocks.entrySet().iterator(); i.hasNext();) {
+                for (Iterator<Map.Entry<Location, Long>> i = blocks.entrySet().iterator(); i.hasNext(); ) {
                     Map.Entry<Location, Long> e = i.next();
                     if (e.getValue() <= getEpoch()) {
                         e.getKey().getBlock().setType(Material.valueOf(getConfig().getString("default.material")));

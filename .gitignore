@@ -1,0 +1,17 @@
+
+.idea/compiler.xml
+.idea/encodings.xml
+.idea/discord.xml
+.idea/vcs.xml
+.idea/misc.xml
+target/classes/net/poweredbyawesome/blockdecay/BlockDecay$1.class
+target/BlockDecay.jar
+target/classes/net/poweredbyawesome/blockdecay/BlockDecay.class
+target/classes/config.yml
+target/classes/blocks.yml
+target/classes/net/poweredbyawesome/blockdecay/LocationUtils.class
+target/classes/plugin.yml
+target/maven-archiver/pom.properties
+target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+.idea/discord.xml

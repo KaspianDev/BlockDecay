@@ -1,4 +1,5 @@
 name: BlockDecay
 version: ${project.version}
-author: LaxWasHere
+author: Kaspian
+api-version: 1.18
 main: net.poweredbyawesome.blockdecay.BlockDecay
