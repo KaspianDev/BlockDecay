@@ -70,22 +70,20 @@ public final class BlockDecay extends JavaPlugin implements Listener {
         if (!getConfig().getStringList("worlds").contains(ev.getBlock().getWorld().getName())) {
             return;
         }
-        if (Objects.requireNonNull(getConfig().getConfigurationSection("decay")).getKeys(false).contains(mat)) {
+        if (getConfig().getConfigurationSection("decay").getKeys(false).contains(mat)) {
             return;
         }
         if (!api.isInRegion(ev.getBlockPlaced().getLocation(), "pvp")) {
             return;
         }
 
-        if (!ev.getPlayer().hasPermission("blockdecay.bypass")) {
-            int decayTime = getConfig().getInt("decay." + mat + ".time", defaultDecay);
-            if (decayTime < 300) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
-                        ev.getBlock().setType(Material.valueOf(getConfig().getString("default.material"))
-                        ), decayTime * 20L);
-            } else {
-                blocks.put(ev.getBlock().getLocation(), getEpoch() + decayTime);
-            }
+        int decayTime = getConfig().getInt("decay." + mat + ".time", defaultDecay);
+        if (decayTime < 300) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
+                    ev.getBlock().setType(Material.valueOf(getConfig().getString("default.material"))
+                    ), decayTime * 20L);
+        } else {
+            blocks.put(ev.getBlock().getLocation(), getEpoch() + decayTime);
         }
     }
 
