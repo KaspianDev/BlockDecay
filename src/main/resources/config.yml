@@ -6,14 +6,8 @@ default:
 
 #Blocks with custom decay time
 decay:
-  DIRT:
+  BEDROCK:
     time: 1
-  WOOD:
-    time: 2
-  COBBLESTONE:
-    time: 3
-  SNOW_BLOCK:
-    time: 10
 
 #Enabled worlds where blocks will decay.
 worlds:
